@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { LogoutButton } from "@/components/logout-button"
+import { useAuth } from "@/app/providers/AuthProvider"
 import {
   Users,
   ArrowDownCircle,
@@ -87,6 +89,7 @@ const users = [
 export default function PainelAdminCompleto() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+  const { user } = useAuth()
 
   const filteredUsers = users.filter(
     (user) =>
@@ -155,9 +158,7 @@ export default function PainelAdminCompleto() {
                     </Button>
                   </Link>
                   <div className="pt-4 mt-4 border-t border-zinc-800">
-                    <Button variant="ghost" className="w-full justify-start text-red-400">
-                      <LogOut className="mr-2 h-5 w-5" /> Sair
-                    </Button>
+                    <LogoutButton />
                   </div>
                 </nav>
               </div>
@@ -166,8 +167,8 @@ export default function PainelAdminCompleto() {
         )}
 
         {/* Menu Lateral Desktop */}
-        <aside className="hidden md:block w-64 bg-zinc-950 border-r border-zinc-800 shrink-0 h-screen sticky top-0 overflow-y-auto">
-          <div className="p-4">
+        <aside className="hidden md:block w-64 bg-zinc-950 border-r border-zinc-800 shrink-0 fixed h-screen overflow-y-auto">
+          <div className="p-4 pb-20">
             <h2 className="text-xl font-bold mb-6">Admin HOOMOON</h2>
             <nav className="space-y-4">
               <Button variant="ghost" className="w-full justify-start">
@@ -208,30 +209,30 @@ export default function PainelAdminCompleto() {
                   <Activity className="mr-2 h-5 w-5" /> Logs de Ações
                 </Button>
               </Link>
+              <div className="pt-4 mt-4 border-t border-zinc-800">
+                <LogoutButton />
+              </div>
             </nav>
 
-            <div className="absolute bottom-4 left-4 right-4">
-              <div className="p-3 bg-zinc-900 rounded-lg border border-zinc-800">
-                <div className="flex items-center gap-3 mb-3">
-                  <Avatar className="h-8 w-8">
+            <div className="absolute bottom-4 left-2 right-2">
+              <div className="p-2 bg-zinc-900 rounded-lg border border-zinc-800">
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-7 w-7">
                     <AvatarImage src="/admin-interface.png" />
-                    <AvatarFallback>AD</AvatarFallback>
+                    <AvatarFallback>{user?.name?.charAt(0) || 'A'}</AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="text-sm font-medium">Admin</p>
-                    <p className="text-xs text-zinc-400">admin@hoomoon.com</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{user?.name || 'Admin'}</p>
+                    <p className="text-xs text-zinc-400 truncate">{user?.email || 'admin@hoomoon.com'}</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="w-full text-xs">
-                  <LogOut className="mr-1 h-3 w-3" /> Sair
-                </Button>
               </div>
             </div>
           </div>
         </aside>
 
         {/* Conteúdo Principal */}
-        <main className="flex-1 min-h-screen w-full overflow-x-hidden pt-16 md:pt-0">
+        <main className="flex-1 md:ml-64">
           <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
             <div className="flex justify-between items-center py-4 md:py-8">
               <h1 className="text-2xl font-bold">Painel Administrativo</h1>
@@ -251,8 +252,8 @@ export default function PainelAdminCompleto() {
                     <p className="text-sm text-white">Saldo Total</p>
                     <DollarSign className="h-5 w-5 text-green-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-green-400">R$ 1.245.890,00</h2>
-                  <p className="text-xs text-green-400 mt-1">+5,2% este mês</p>
+                  <h2 className="text-2xl font-bold text-green-400">R$ 0,00</h2>
+                  <p className="text-xs text-green-400 mt-1">+0,0% este mês</p>
                 </CardContent>
               </Card>
 
@@ -262,8 +263,8 @@ export default function PainelAdminCompleto() {
                     <p className="text-sm text-white">Total Investido</p>
                     <ArrowUpCircle className="h-5 w-5 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white">R$ 987.650,00</h2>
-                  <p className="text-xs text-white mt-1">+3,8% este mês</p>
+                  <h2 className="text-2xl font-bold text-white">R$ 0,00</h2>
+                  <p className="text-xs text-white mt-1">+0,0% este mês</p>
                 </CardContent>
               </Card>
 
@@ -273,8 +274,8 @@ export default function PainelAdminCompleto() {
                     <p className="text-sm text-white">Total de Saques</p>
                     <ArrowDownCircle className="h-5 w-5 text-red-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-red-400">R$ 456.320,00</h2>
-                  <p className="text-xs text-red-400 mt-1">-2,1% este mês</p>
+                  <h2 className="text-2xl font-bold text-red-400">R$ 0,00</h2>
+                  <p className="text-xs text-red-400 mt-1">+0,0% este mês</p>
                 </CardContent>
               </Card>
 
@@ -284,8 +285,8 @@ export default function PainelAdminCompleto() {
                     <p className="text-sm text-white">Total de Comissões</p>
                     <DollarSign className="h-5 w-5 text-green-300" />
                   </div>
-                  <h2 className="text-2xl font-bold text-green-300">R$ 123.450,00</h2>
-                  <p className="text-xs text-green-300 mt-1">+7,5% este mês</p>
+                  <h2 className="text-2xl font-bold text-green-300">R$ 0,00</h2>
+                  <p className="text-xs text-green-300 mt-1">+0,0% este mês</p>
                 </CardContent>
               </Card>
 
@@ -295,8 +296,8 @@ export default function PainelAdminCompleto() {
                     <p className="text-sm text-white">Total de Usuários</p>
                     <Users className="h-5 w-5 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white">8.742</h2>
-                  <p className="text-xs text-white mt-1">+124 este mês</p>
+                  <h2 className="text-2xl font-bold text-white">0</h2>
+                  <p className="text-xs text-white mt-1">+0 este mês</p>
                 </CardContent>
               </Card>
 
@@ -304,10 +305,10 @@ export default function PainelAdminCompleto() {
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">
                     <p className="text-sm text-white">Usuários Ativos</p>
-                    <UserPlus className="h-5 w-5 text-green-400" />
+                    <User className="h-5 w-5 text-green-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-green-400">6.521</h2>
-                  <p className="text-xs text-green-400 mt-1">+98 este mês</p>
+                  <h2 className="text-2xl font-bold text-green-400">0</h2>
+                  <p className="text-xs text-green-400 mt-1">+0 este mês</p>
                 </CardContent>
               </Card>
 
@@ -317,8 +318,8 @@ export default function PainelAdminCompleto() {
                     <p className="text-sm text-white">Usuários Inativos</p>
                     <UserMinus className="h-5 w-5 text-red-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-red-400">2.221</h2>
-                  <p className="text-xs text-red-400 mt-1">+26 este mês</p>
+                  <h2 className="text-2xl font-bold text-red-400">0</h2>
+                  <p className="text-xs text-red-400 mt-1">+0 este mês</p>
                 </CardContent>
               </Card>
 
@@ -326,10 +327,10 @@ export default function PainelAdminCompleto() {
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">
                     <p className="text-sm text-white">Usuários Patrocinados</p>
-                    <User className="h-5 w-5 text-white" />
+                    <UserPlus className="h-5 w-5 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white">3.456</h2>
-                  <p className="text-xs text-white mt-1">+45 este mês</p>
+                  <h2 className="text-2xl font-bold text-white">0</h2>
+                  <p className="text-xs text-white mt-1">+0 este mês</p>
                 </CardContent>
               </Card>
 
@@ -337,10 +338,10 @@ export default function PainelAdminCompleto() {
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">
                     <p className="text-sm text-white">Saldo de Patrocínio</p>
-                    <Shield className="h-5 w-5 text-green-300" />
+                    <Shield className="h-5 w-5 text-green-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-green-300">R$ 345.670,00</h2>
-                  <p className="text-xs text-green-300 mt-1">+4,3% este mês</p>
+                  <h2 className="text-2xl font-bold text-green-400">R$ 0,00</h2>
+                  <p className="text-xs text-green-400 mt-1">+0,0% este mês</p>
                 </CardContent>
               </Card>
 
@@ -348,10 +349,10 @@ export default function PainelAdminCompleto() {
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">
                     <p className="text-sm text-white">Rendimentos de Patrocínio</p>
-                    <DollarSign className="h-5 w-5 text-green-300" />
+                    <DollarSign className="h-5 w-5 text-green-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-green-300">R$ 78.920,00</h2>
-                  <p className="text-xs text-green-300 mt-1">+6,8% este mês</p>
+                  <h2 className="text-2xl font-bold text-green-400">R$ 0,00</h2>
+                  <p className="text-xs text-green-400 mt-1">+0,0% este mês</p>
                 </CardContent>
               </Card>
             </div>
