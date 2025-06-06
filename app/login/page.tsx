@@ -4,63 +4,45 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { registrarAcaoAdmin } from "@/utils/admin-logs"
+import { adminLogin } from "@/utils/api"
+import { useAuth } from "../providers/AuthProvider"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [senha, setSenha] = useState("")
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const { setUser } = useAuth()
   const router = useRouter()
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setError(null)
 
     try {
-      const admins = JSON.parse(localStorage.getItem("admins") || "[]")
+      const response = await adminLogin(username, password)
+      
+      // Armazenar dados do usuário no localStorage e no contexto
+      localStorage.setItem("adminUser", JSON.stringify(response.user))
+      setUser(response.user)
 
-      // Se não houver admins cadastrados, criar um admin padrão para testes
-      if (admins.length === 0) {
-        const adminPadrao = {
-          nome: "Administrador",
-          email: "admin@hoomoon.com",
-          telefone: "(11) 99999-9999",
-          senha: "admin123",
-        }
-        localStorage.setItem("admins", JSON.stringify([adminPadrao]))
+      // Registrar a ação de login
+      registrarAcaoAdmin({
+        acao: "Realizou login no sistema",
+        usuarioAfetado: undefined,
+      })
 
-        // Se as credenciais corresponderem ao admin padrão, fazer login
-        if (email === adminPadrao.email && senha === adminPadrao.senha) {
-          localStorage.setItem("adminLogado", JSON.stringify(adminPadrao))
-
-          // Registrar a ação de login
-          registrarAcaoAdmin({
-            acao: "Realizou login no sistema",
-            usuarioAfetado: undefined,
-          })
-
-          router.push("/") // Redirecionar para a dashboard
-          return
-        }
-      }
-
-      const adminLogado = admins.find((admin) => admin.email === email && admin.senha === senha)
-
-      if (adminLogado) {
-        localStorage.setItem("adminLogado", JSON.stringify(adminLogado))
-
-        // Registrar a ação de login
-        registrarAcaoAdmin({
-          acao: "Realizou login no sistema",
-          usuarioAfetado: undefined,
-        })
-
-        router.push("/") // Redirecionar para a dashboard
-      } else {
-        alert("E-mail ou senha incorretos")
-      }
-    } catch (error) {
+      router.push("/") // Redirecionar para a dashboard
+    } catch (error: any) {
       console.error("Erro ao fazer login:", error)
-      alert("Ocorreu um erro ao fazer login. Tente novamente.")
+      if (error.non_field_errors) {
+        setError(error.non_field_errors[0])
+      } else if (error.detail) {
+        setError(error.detail)
+      } else {
+        setError("Ocorreu um erro ao fazer login. Tente novamente.")
+      }
     } finally {
       setLoading(false)
     }
@@ -69,15 +51,20 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black flex items-center justify-center px-4">
       <div className="bg-zinc-950 shadow-lg rounded-2xl p-8 w-full max-w-md border border-[#66e0cc]">
-        <h1 className="text-3xl font-bold text-white text-center mb-6">Login</h1>
+        <h1 className="text-3xl font-bold text-white text-center mb-6">Login Administrativo</h1>
         <form onSubmit={handleLogin} className="space-y-4">
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded text-sm">
+              {error}
+            </div>
+          )}
           <div>
-            <label className="block mb-1 text-sm text-white">E-mail</label>
+            <label className="block mb-1 text-sm text-white">Usuário</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Digite seu e-mail"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Digite seu usuário"
               className="w-full px-4 py-2 bg-zinc-800 border border-white/20 rounded text-white focus:outline-none"
               required
             />
@@ -86,8 +73,8 @@ export default function LoginPage() {
             <label className="block mb-1 text-sm text-white">Senha</label>
             <input
               type="password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Digite sua senha"
               className="w-full px-4 py-2 bg-zinc-800 border border-white/20 rounded text-white focus:outline-none"
               required
@@ -100,22 +87,12 @@ export default function LoginPage() {
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
-          <div className="flex justify-between text-sm text-white mt-4">
+          <div className="flex justify-center text-sm text-white mt-4">
             <Link href="/recuperar-senha" className="text-[#66e0cc] hover:underline">
               Esqueceu a senha?
             </Link>
-            <Link href="/cadastro" className="text-[#66e0cc] hover:underline">
-              Criar conta
-            </Link>
           </div>
         </form>
-
-        {/* Informações de teste */}
-        <div className="mt-8 p-3 bg-zinc-900 rounded-lg border border-zinc-800">
-          <p className="text-xs text-zinc-400 mb-2">Para testes, use:</p>
-          <p className="text-xs text-zinc-400">Email: admin@hoomoon.com</p>
-          <p className="text-xs text-zinc-400">Senha: admin123</p>
-        </div>
       </div>
     </div>
   )
